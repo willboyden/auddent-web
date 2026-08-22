@@ -1,10 +1,11 @@
 /* eslint-disable no-undef -- page.evaluate callbacks below execute in the browser context */
 import { chromium } from '@playwright/test';
+const PREVIEW_PORT = process.env.PREVIEW_PORT || '4173';
 
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
 const page = await context.newPage();
-await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+await page.goto(`http://127.0.0.1:${PREVIEW_PORT}/`, { waitUntil: 'networkidle' });
 
 const metrics = await page.evaluate(() => {
   const doc = document.documentElement;
@@ -28,7 +29,7 @@ console.log(JSON.stringify(metrics, null, 2));
 
 const wide = await browser.newContext({ viewport: { width: 1280, height: 900 } });
 const page2 = await wide.newPage();
-await page2.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+await page2.goto(`http://127.0.0.1:${PREVIEW_PORT}/`, { waitUntil: 'networkidle' });
 const smallText = await page2.evaluate(() => {
   const bad = [];
   document.querySelectorAll('main p, main li, main span, main a, main button').forEach((el) => {

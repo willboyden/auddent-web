@@ -1,10 +1,11 @@
 import { chromium } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+const PREVIEW_PORT = process.env.PREVIEW_PORT || '4173';
 
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
 const page = await context.newPage();
-await page.goto('http://127.0.0.1:4173/');
+await page.goto(`http://127.0.0.1:${PREVIEW_PORT}/`);
 const results = await new AxeBuilder({ page }).analyze();
 for (const v of results.violations) {
   console.log(`\n== ${v.id} (${v.impact}) ${v.help}`);

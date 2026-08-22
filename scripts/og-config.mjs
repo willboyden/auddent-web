@@ -2,6 +2,7 @@
 // This is the only scripts/ file allowed to differ between marketing sites.
 export const ogConfig = {
   brand: 'BrightGuard',
+  articleSlug: 'dental-inspection-prep',
   eyebrow: 'The compliance workbench for dental practices',
   headline: 'Walk into your next inspection with the evidence already in hand.',
   subline:
