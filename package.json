@@ -1,0 +1,46 @@
+{
+  "name": "brightguard-marketing-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Marketing site for BrightGuard, the dental compliance workbench",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite --port 5199",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test:unit": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "gate": "npm run typecheck && npm run lint && npm run test:unit && npm run build && npm run test:e2e"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/inter": "^5.2.5",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.62.1",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^5.2.0",
+    "eslint": "^9.0.0",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.0",
+    "vite": "^6.4.3",
+    "vitest": "^3.2.4"
+  }
+}
