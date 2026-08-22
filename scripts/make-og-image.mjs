@@ -1,8 +1,11 @@
 import { chromium } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
+import { ogConfig } from './og-config.mjs';
 
 const W = 1200;
 const H = 630;
+
+const { brand, eyebrow, headline, subline, chips, palette: p } = ogConfig;
 
 const html = `<!doctype html>
 <html>
@@ -14,9 +17,9 @@ const html = `<!doctype html>
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background:
-      radial-gradient(1200px 600px at 85% -10%, #14417a 0%, rgba(20,65,122,0) 60%),
-      radial-gradient(900px 500px at -10% 110%, #0e3a6e 0%, rgba(14,58,110,0) 55%),
-      #0b2545;
+      radial-gradient(1200px 600px at 85% -10%, rgb(${p.glowA}) 0%, rgba(${p.glowA},0) 60%),
+      radial-gradient(900px 500px at -10% 110%, rgb(${p.glowB}) 0%, rgba(${p.glowB},0) 55%),
+      ${p.bg};
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -26,30 +29,30 @@ const html = `<!doctype html>
   .top { display: flex; align-items: center; gap: 18px; }
   .logo {
     width: 44px; height: 44px; border-radius: 12px;
-    background: #0a63c9;
+    background: ${p.primary};
     display: grid; place-items: center;
   }
   .brand { font-size: 28px; font-weight: 800; letter-spacing: -0.01em; }
   .mid { display: flex; flex-direction: column; gap: 18px; }
   .eyebrow {
     font-size: 17px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-    color: #7fb1e8;
+    color: ${p.eyebrow};
   }
   h1 {
     font-size: 60px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em;
     max-width: 900px;
   }
-  .sub { font-size: 24px; line-height: 1.45; color: #b9cbe0; max-width: 760px; font-weight: 400; }
+  .sub { font-size: 24px; line-height: 1.45; color: ${p.sub}; max-width: 760px; font-weight: 400; }
   .bottom { display: flex; align-items: center; justify-content: space-between; }
   .chips { display: flex; gap: 12px; flex-wrap: wrap; }
   .chip {
-    font-size: 16px; font-weight: 600; color: #eaf2fb;
+    font-size: 16px; font-weight: 600; color: ${p.chipText};
     background: rgba(255,255,255,0.10);
     border: 1px solid rgba(255,255,255,0.18);
     padding: 9px 16px; border-radius: 999px;
   }
   .cta {
-    font-size: 19px; font-weight: 700; color: #0b2545;
+    font-size: 19px; font-weight: 700; color: ${p.ctaText};
     background: #ffffff; padding: 14px 26px; border-radius: 12px;
     display: inline-flex; align-items: center; gap: 8px;
   }
@@ -60,27 +63,25 @@ const html = `<!doctype html>
     <div class="logo">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
         <path d="M12 2l7 3v6c0 4.5-3 8.5-7 11-4-2.5-7-6.5-7-11V5l7-3z" fill="#fff"/>
-        <path d="M8.5 12l2.4 2.4L15.5 9.5" stroke="#0a63c9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.5 12l2.4 2.4L15.5 9.5" stroke="${p.primary}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    <div class="brand">BrightGuard</div>
+    <div class="brand">${brand}</div>
   </div>
 
   <div class="mid">
-    <div class="eyebrow">The compliance workbench for dental practices</div>
-    <h1>Walk into your next inspection with the evidence already in hand.</h1>
-    <div class="sub">Sterilization, spore tests, training, DEA, HIPAA, and a tamper-evident audit trail — in one place your auditor can verify.</div>
+    <div class="eyebrow">${eyebrow}</div>
+    <h1>${headline}</h1>
+    <div class="sub">${subline}</div>
   </div>
 
   <div class="bottom">
     <div class="chips">
-      <span class="chip">Inspection-ready</span>
-      <span class="chip">Tamper-evident audit trail</span>
-      <span class="chip">Weekly owner digest</span>
+      ${chips.map((c) => `<span class="chip">${c}</span>`).join('\n      ')}
     </div>
     <div class="cta">See it live
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M5 12h14M13 6l6 6-6 6" stroke="#0b2545" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="${p.ctaText}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
   </div>
