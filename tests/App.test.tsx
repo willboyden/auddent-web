@@ -23,9 +23,9 @@ describe('App (full page smoke)', () => {
     for (const id of [
       'features',
       'audit-trail',
+      'data',
       'how-it-works',
       'digest',
-      'testimonials',
       'compare',
       'pricing',
       'faq',

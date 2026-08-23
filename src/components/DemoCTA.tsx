@@ -2,6 +2,9 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import styled from '@emotion/styled';
 import { breakpoints, colors } from '../theme';
+import { CONTACT_EMAIL } from '../data/content';
+import { trackEvent } from '../lib/analytics';
+import { cooldownRemainingMs, demoMailto, openMailto, recordSubmission } from '../lib/leads';
 import { validateDemoForm } from '../lib/validation';
 import type { DemoFormErrors, DemoFormValues } from '../lib/validation';
 import { Container, Section } from './ui';
@@ -233,6 +236,12 @@ const FinePrint = styled.p`
   font-size: 12.5px;
   color: ${colors.muted};
   text-align: center;
+
+  a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+  }
 `;
 
 const Success = styled.div`
@@ -272,6 +281,7 @@ export default function DemoCTA() {
   const [values, setValues] = useState<DemoFormValues>(INITIAL);
   const [errors, setErrors] = useState<DemoFormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
 
   function setField(key: keyof DemoFormValues, value: string) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -289,6 +299,15 @@ export default function DemoCTA() {
       }
       return;
     }
+    const remaining = cooldownRemainingMs('demo');
+    if (remaining > 0) {
+      setRateLimited(true);
+      return;
+    }
+    trackEvent('demo_request', { offices: values.offices });
+    recordSubmission('demo');
+    openMailto(demoMailto(values));
+    setRateLimited(false);
     setSubmitted(true);
   }
 
@@ -327,10 +346,11 @@ export default function DemoCTA() {
                     <path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </SuccessIcon>
-                <SuccessTitle>Thanks, {values.name.trim().split(' ')[0]} — request received.</SuccessTitle>
+                <SuccessTitle>Thanks, {values.name.trim().split(' ')[0]} — one more step.</SuccessTitle>
                 <SuccessBody>
-                  We’ll reach out to <strong>{values.email.trim()}</strong> within one business day to schedule your
-                  walkthrough for {values.practice.trim()}.
+                  We’ve opened a draft email with your details. Hit send and we’ll reply to{' '}
+                  <strong>{values.email.trim()}</strong> within one business day to schedule the walkthrough for{' '}
+                  {values.practice.trim()}. If your email app didn’t open, email {CONTACT_EMAIL} directly.
                 </SuccessBody>
               </Success>
             ) : (
@@ -433,9 +453,15 @@ export default function DemoCTA() {
                   />
                 </Field>
 
+                {rateLimited ? (
+                  <ErrorMsg id="demo-rate-limited" role="alert" aria-label="You just submitted this form. Please wait a minute before trying again.">
+                    You just submitted this form — please wait a minute before trying again.
+                  </ErrorMsg>
+                ) : null}
                 <SubmitButton type="submit">Book my demo</SubmitButton>
                 <FinePrint>
-                  Prefer email? Reach us at hello@brightguard.example. We never share your details.
+                  Prefer email? Reach us at {CONTACT_EMAIL}. We never share your details — see our{' '}
+                  <a href="/privacy">privacy policy</a>.
                 </FinePrint>
               </form>
             )}

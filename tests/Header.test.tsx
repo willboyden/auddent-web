@@ -1,17 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Header from '../src/components/Header';
 import { render } from './test-utils';
-import { NAV_LINKS } from '../src/data/content';
+import { NAV_LINKS, PAGE_LINKS } from '../src/data/content';
 
 describe('Header', () => {
+  afterEach(() => {
+    window.plausible = undefined;
+  });
+
   it('renders the brand and every desktop nav link', () => {
     render(<Header />);
-    expect(screen.getByRole('link', { name: 'BrightGuard' })).toHaveAttribute('href', '#top');
+    expect(screen.getByRole('link', { name: 'AudDent' })).toHaveAttribute('href', '/#top');
 
     const mainNav = screen.getByRole('navigation', { name: 'Main' });
-    NAV_LINKS.forEach((link) => {
+    [...NAV_LINKS, ...PAGE_LINKS].forEach((link) => {
       expect(within(mainNav).getByRole('link', { name: link.label })).toHaveAttribute('href', link.href);
     });
   });
@@ -20,7 +24,17 @@ describe('Header', () => {
     render(<Header />);
     const ctas = screen.getAllByRole('link', { name: 'Book a demo', hidden: true });
     expect(ctas.length).toBeGreaterThanOrEqual(1);
-    ctas.forEach((cta) => expect(cta).toHaveAttribute('href', '#demo'));
+    ctas.forEach((cta) => expect(cta).toHaveAttribute('href', '/#demo'));
+  });
+
+  it('tracks a demo CTA click from the desktop header', () => {
+    const plausible = vi.fn();
+    window.plausible = plausible;
+    render(<Header />);
+    const cta = screen.getAllByRole('link', { name: 'Book a demo', hidden: true })[0];
+    cta.click();
+    expect(plausible).toHaveBeenCalledTimes(1);
+    expect(plausible).toHaveBeenCalledWith('cta_click', { props: { source: 'header' } });
   });
 
   it('toggles the mobile menu with the correct aria state', async () => {
@@ -45,10 +59,10 @@ describe('Header', () => {
     expect(panel.tagName).toBe('NAV');
     expect(panel).toHaveAttribute('aria-label', 'Mobile');
     const links = within(panel).getAllByRole('link', { hidden: true });
-    expect(links.length).toBe(NAV_LINKS.length + 1);
+    expect(links.length).toBe(NAV_LINKS.length + PAGE_LINKS.length + 1);
     const hrefs = links.map((link) => link.getAttribute('href'));
-    NAV_LINKS.forEach((link) => expect(hrefs).toContain(link.href));
-    expect(hrefs).toContain('#demo');
+    [...NAV_LINKS, ...PAGE_LINKS].forEach((link) => expect(hrefs).toContain(link.href));
+    expect(hrefs).toContain('/#demo');
 
     await user.click(toggle);
     expect(toggle.getAttribute('aria-label')).toBe('Open menu');

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Global } from '@emotion/react';
 import styled from '@emotion/styled';
 import type { ReactNode } from 'react';
@@ -58,6 +59,21 @@ export const globalStyles = `
 `;
 
 export default function SiteShell({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    const scrollToHash = () => {
+      const id = window.location.hash.slice(1);
+      if (!id) return;
+      document.getElementById(id)?.scrollIntoView();
+    };
+    // Cross-page nav (e.g. /resources -> /#pricing): the target only exists
+    // after this render, so the browser's native fragment scroll — which
+    // fires at load — has nothing to scroll to. Scroll once after mount,
+    // and again on any in-page hash change.
+    if (window.location.hash) requestAnimationFrame(scrollToHash);
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, []);
+
   return (
     <>
       <Global styles={globalStyles} />

@@ -8,6 +8,6 @@ describe('NotFound', () => {
     render(<NotFound />);
     expect(screen.getByText('404')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'This page doesn’t exist.' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Back to BrightGuard' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Back to AudDent' })).toHaveAttribute('href', '/');
   });
 });

@@ -8,7 +8,7 @@ describe('Compare', () => {
     render(<Compare />);
     expect(screen.getByRole('columnheader', { name: 'Spreadsheets' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Lives in your EHR' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'BrightGuard' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'AudDent' })).toBeInTheDocument();
   });
 
   it('renders six feature rows with row headers and eighteen cells', () => {
@@ -18,7 +18,7 @@ describe('Compare', () => {
     expect(screen.getAllByRole('cell')).toHaveLength(18);
   });
 
-  it('shows the BrightGuard answer on every row', () => {
+  it('shows the AudDent answer on every row', () => {
     render(<Compare />);
     expect(screen.getByText('One bundle, printed in minutes')).toBeInTheDocument();
     expect(screen.getByText('Every entry carries who, when, and a chain hash')).toBeInTheDocument();
@@ -30,6 +30,6 @@ describe('Compare', () => {
 
   it('links the CTA to the demo section', () => {
     render(<Compare />);
-    expect(screen.getByRole('link', { name: 'Book a demo' })).toHaveAttribute('href', '#demo');
+    expect(screen.getByRole('link', { name: 'Book a demo' })).toHaveAttribute('href', '/#demo');
   });
 });

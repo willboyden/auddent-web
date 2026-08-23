@@ -166,12 +166,12 @@ export default function Hero() {
             <Chip tone="sky">For independent dental practices</Chip>
             <H1>Walk into your next inspection with the evidence already in hand.</H1>
             <Lede>
-              BrightGuard is the compliance workbench built for dental practices — sterilization and spore tests, staff
+              AudDent is the compliance workbench built for dental practices — sterilization and spore tests, staff
               training, DEA controlled substances, HIPAA, and a tamper-evident audit trail, in one place.
             </Lede>
             <CtaRow>
-              <Button href="#demo">Book a live demo</Button>
-              <Button href="#features" variant="secondary">
+              <Button href="/#demo">Book a live demo</Button>
+              <Button href="/#features" variant="secondary">
                 Explore the features
               </Button>
             </CtaRow>

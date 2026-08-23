@@ -26,7 +26,7 @@ const Note = styled.p`
 const CARDS = [
   {
     title: 'Runs where you point it',
-    body: 'BrightGuard is self-hosted: one application and one single-file database on infrastructure you control. Your records are not sitting in a vendor cloud you rent — there is no third party to subpoena, leak, or lock you out of.',
+    body: 'AudDent is self-hosted: one application and one single-file database on infrastructure you control. Your records are not sitting in a vendor cloud you rent — there is no third party to subpoena, leak, or lock you out of.',
   },
   {
     title: 'Every record is chained',

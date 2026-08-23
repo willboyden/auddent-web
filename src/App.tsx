@@ -7,7 +7,6 @@ import AuditTrail from './components/AuditTrail';
 import DataControl from './components/DataControl';
 import HowItWorks from './components/HowItWorks';
 import Digest from './components/Digest';
-import Testimonials from './components/Testimonials';
 import Compare from './components/Compare';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
@@ -26,7 +25,6 @@ export default function App() {
       <DataControl />
       <HowItWorks />
       <Digest />
-      <Testimonials />
       <Compare />
       <Pricing />
       <FAQ />

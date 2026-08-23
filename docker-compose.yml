@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1
+name: auditdent-site
+
+# Always boot through ./start.sh — it stamps the repo HEAD into the image
+# (COMMIT label) and refuses to run an image whose baked stamp does not match
+# HEAD (same freshness gate as the root start-docker.sh). A plain
+# `docker compose up -d` silently runs whatever stale image is cached.
+services:
+  site:
+    build:
+      context: .
+      args:
+        COMMIT: ${BUILD_SHA:-unknown}
+    image: auditdent-site:local
+    ports:
+      # Loopback-only: the public edge terminates TLS in front of the
+      # container, so it is never exposed directly.
+      - "127.0.0.1:8090:8080"
+    restart: unless-stopped

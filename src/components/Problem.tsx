@@ -61,7 +61,7 @@ export default function Problem() {
           ))}
         </Grid>
         <Punch>
-          BrightGuard turns that stack into <span>one workbench</span> — and the week before the visit becomes
+          AudDent turns that stack into <span>one workbench</span> — and the week before the visit becomes
           &ldquo;where was that again?&rdquo;
         </Punch>
       </Container>

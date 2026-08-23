@@ -1,7 +1,14 @@
 node_modules/
 dist/
 coverage/
+public/.og-image.generated
 playwright-data/
 playwright-report/
 test-results/
 *.local
+
+# Ad-hoc probe scripts dropped at the repo root during QA — never commit
+.probe-*
+
+# Local security-audit notes; contain findings that must not be public
+security-followups.md

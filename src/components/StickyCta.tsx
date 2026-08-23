@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
+import { trackEvent } from '../lib/analytics';
 import { Button, Container } from './ui';
 
 const THRESHOLD = 720;
@@ -54,7 +55,11 @@ export default function StickyCta() {
       <Container>
         <Row>
           <Text>Ready to see how it works on your state’s rules?</Text>
-          <Button href="#demo" variant="light">
+          <Button
+            href="/#demo"
+            variant="light"
+            onClick={() => trackEvent('cta_click', { source: 'sticky_bar' })}
+          >
             Book a 30-minute demo
           </Button>
         </Row>

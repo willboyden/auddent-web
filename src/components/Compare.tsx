@@ -127,7 +127,7 @@ export default function Compare() {
         <TableScroll tabIndex={0}>
           <Table>
             <caption>
-              <SrOnly>How BrightGuard compares with spreadsheets and keeping compliance notes in your EHR</SrOnly>
+              <SrOnly>How AudDent compares with spreadsheets and keeping compliance notes in your EHR</SrOnly>
             </caption>
             <thead>
               <tr>
@@ -135,7 +135,7 @@ export default function Compare() {
                   <SrOnly>What matters</SrOnly>
                 </th>
                 {COMPARE_COLUMNS.map((column) => (
-                  <HeadCell key={column} featured={column === 'BrightGuard'}>
+                  <HeadCell key={column} featured={column === 'AudDent'}>
                     {column}
                   </HeadCell>
                 ))}
@@ -164,7 +164,7 @@ export default function Compare() {
           begins.
         </FootNote>
         <CtaRow>
-          <Button href="#demo" variant="primary">
+          <Button href="/#demo" variant="primary">
             Book a demo
           </Button>
         </CtaRow>

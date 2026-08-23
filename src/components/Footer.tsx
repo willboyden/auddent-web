@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { NAV_LINKS, PRODUCT_NAME, PRODUCT_TAGLINE } from '../data/content';
+import { CONTACT_EMAIL, NAV_LINKS, PAGE_LINKS, PRODUCT_NAME, PRODUCT_TAGLINE } from '../data/content';
 import { Container } from './ui';
 
 const Wrap = styled.footer`
@@ -105,29 +105,35 @@ export default function Footer() {
                   <LinkA href={link.href}>{link.label}</LinkA>
                 </li>
               ))}
+              {PAGE_LINKS.map((link) => (
+                <li key={link.href}>
+                  <LinkA href={link.href}>{link.label}</LinkA>
+                </li>
+              ))}
             </LinkList>
           </nav>
           <div>
             <ColTitle>Get started</ColTitle>
             <LinkList>
               <li>
-                <LinkA href="#demo">Book a demo</LinkA>
+                <LinkA href="/#demo">Book a demo</LinkA>
               </li>
               <li>
-                <LinkA href="#pricing">See pricing</LinkA>
+                <LinkA href="/#pricing">See pricing</LinkA>
               </li>
               <li>
-                <LinkA href="mailto:hello@brightguard.example">hello@brightguard.example</LinkA>
+                <LinkA href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</LinkA>
               </li>
             </LinkList>
           </div>
         </Top>
         <Bottom>
           <span>© 2026 {PRODUCT_NAME} Compliance. All rights reserved.</span>
+          <LinkA href="/privacy">Privacy</LinkA>
           <span>Part of the Dental Compliance SaaS family</span>
         </Bottom>
         <Legal>
-          Regulatory requirements vary by state and change over time. BrightGuard organizes and evidences your
+          Regulatory requirements vary by state and change over time. AudDent organizes and evidences your
           compliance work; it does not provide legal advice. Confirm your specific obligations with your compliance
           counsel or your state’s board of dentistry.
         </Legal>

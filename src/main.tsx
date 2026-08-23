@@ -1,8 +1,12 @@
-import { StrictMode } from 'react';
+import { StrictMode, type ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from '@emotion/react';
 import App from './App';
 import NotFound from './components/NotFound';
+import PrivacyPage from './pages/Privacy';
+import Resources from './pages/Resources';
+import ResourceArticle from './pages/ResourceArticle';
+import { getResourceBySlug } from './data/resources';
 import { theme } from './theme';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
@@ -15,12 +19,29 @@ if (!rootElement) {
   throw new Error('Root element #root is missing');
 }
 
-const isHome = window.location.pathname === '/';
+// Static hosts (nginx, DO App Platform, …) canonicalize directory URLs to
+// the trailing-slash form via 301 (`/resources` -> `/resources/`). Strip
+// trailing slashes so the client router matches the same pages the
+// prerenderer wrote in both forms; `/` must survive the strip.
+const path = window.location.pathname.replace(/\/+$/, '') || '/';
+const resourceMatch = path.match(/^\/resources\/([a-z0-9-]+)$/);
+const article = resourceMatch ? getResourceBySlug(resourceMatch[1]) : undefined;
+
+let page: ReactElement;
+if (path === '/') {
+  page = <App />;
+} else if (path === '/resources') {
+  page = <Resources />;
+} else if (path === '/privacy') {
+  page = <PrivacyPage />;
+} else if (article) {
+  page = <ResourceArticle article={article} />;
+} else {
+  page = <NotFound />;
+}
 
 createRoot(rootElement).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      {isHome ? <App /> : <NotFound />}
-    </ThemeProvider>
+    <ThemeProvider theme={theme}>{page}</ThemeProvider>
   </StrictMode>,
 );

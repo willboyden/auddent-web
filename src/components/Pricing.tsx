@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styled from '@emotion/styled';
 import { breakpoints, colors, radii, shadows } from '../theme';
 import { PRICING_TIERS } from '../data/content';
+import { trackEvent } from '../lib/analytics';
 import { displayPrice, yearlyTotal } from '../lib/pricing';
 import { Button, CheckIcon, Chip, Container, Section, SectionHeading } from './ui';
 
@@ -199,6 +200,14 @@ const Foot = styled.p`
 export default function Pricing() {
   const [billing, setBilling] = useState<Billing>('monthly');
 
+  function selectBilling(next: Billing) {
+    if (next === billing) {
+      return;
+    }
+    setBilling(next);
+    trackEvent('billing_toggle', { period: next });
+  }
+
   return (
     <Section id="pricing" bg="#f5f8fc">
       <Container>
@@ -214,7 +223,7 @@ export default function Pricing() {
             type="button"
             active={billing === 'monthly'}
             aria-pressed={billing === 'monthly'}
-            onClick={() => setBilling('monthly')}
+            onClick={() => selectBilling('monthly')}
           >
             Monthly
           </ToggleButton>
@@ -222,7 +231,7 @@ export default function Pricing() {
             type="button"
             active={billing === 'yearly'}
             aria-pressed={billing === 'yearly'}
-            onClick={() => setBilling('yearly')}
+            onClick={() => selectBilling('yearly')}
           >
             Yearly
           </ToggleButton>
@@ -251,7 +260,7 @@ export default function Pricing() {
                 ))}
               </FeatureList>
               <CtaSlot>
-                <Button href="#demo" variant={tier.highlighted ? 'primary' : 'secondary'}>
+                <Button href="/#demo" variant={tier.highlighted ? 'primary' : 'secondary'}>
                   {tier.cta}
                 </Button>
               </CtaSlot>

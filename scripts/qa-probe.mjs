@@ -5,6 +5,25 @@ const PREVIEW_PORT = process.env.PREVIEW_PORT || '4173';
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
 const page = await context.newPage();
+
+// Phone-width overflow check across every public route. /404.html is the
+// real file (vite preview serves the SPA fallback for unknown paths).
+const pages = ['/', '/resources', '/resources/dental-inspection-prep', '/privacy', '/404.html'];
+for (const path of pages) {
+  const probe = await context.newPage();
+  await probe.goto(`http://127.0.0.1:${PREVIEW_PORT}${path}`, { waitUntil: 'networkidle' });
+  const result = await probe.evaluate(() => {
+    const doc = document.documentElement;
+    return {
+      scrollWidth: doc.scrollWidth,
+      overflow: doc.scrollWidth > window.innerWidth,
+      h1: document.querySelector('h1')?.textContent.trim().slice(0, 60) ?? null,
+    };
+  });
+  console.log(`${path}: overflow=${result.overflow} scrollWidth=${result.scrollWidth} h1="${result.h1}"`);
+  await probe.close();
+}
+
 await page.goto(`http://127.0.0.1:${PREVIEW_PORT}/`, { waitUntil: 'networkidle' });
 
 const metrics = await page.evaluate(() => {

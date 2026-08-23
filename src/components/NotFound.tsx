@@ -53,7 +53,7 @@ export default function NotFound() {
           The link may be old or mistyped — everything you need is on the home page.
         </Body>
         <Button href="/" variant="primary">
-          Back to BrightGuard
+          Back to AudDent
         </Button>
       </Card>
     </Page>

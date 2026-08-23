@@ -149,7 +149,7 @@ export default function Digest() {
           <MailCard aria-label="Example weekly digest email">
             <MailHead>
               <strong>Weekly compliance digest — Brightsmile Dental</strong>
-              <span>Monday 7:00 am · sent by BrightGuard</span>
+              <span>Monday 7:00 am · sent by AudDent</span>
             </MailHead>
             <MailBody>
               <MailScore>

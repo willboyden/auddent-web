@@ -1,10 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Pricing from '../src/components/Pricing';
 import { render } from './test-utils';
 
 describe('Pricing', () => {
+  afterEach(() => {
+    window.plausible = undefined;
+  });
+
   it('renders all three tiers with monthly prices by default', () => {
     render(<Pricing />);
     expect(screen.getByRole('heading', { name: 'Single office' })).toBeInTheDocument();
@@ -40,6 +44,20 @@ describe('Pricing', () => {
     expect(screen.getByTestId('billed-single-office')).toHaveTextContent('Billed month to month');
   });
 
+  it('tracks a billing toggle only when the period actually changes', async () => {
+    const plausible = vi.fn();
+    window.plausible = plausible;
+    const user = userEvent.setup();
+    render(<Pricing />);
+
+    await user.click(screen.getByRole('button', { name: 'Monthly' }));
+    expect(plausible).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Yearly' }));
+    expect(plausible).toHaveBeenCalledTimes(1);
+    expect(plausible).toHaveBeenCalledWith('billing_toggle', { props: { period: 'yearly' } });
+  });
+
   it('shows the risk-reversal guarantee', () => {
     render(<Pricing />);
     expect(screen.getByText('If it doesn’t save you prep time, you don’t pay')).toBeInTheDocument();
@@ -50,8 +68,8 @@ describe('Pricing', () => {
 
   it('shows a CTA on every tier', () => {
     render(<Pricing />);
-    expect(screen.getByRole('link', { name: 'Start 30-day trial' })).toHaveAttribute('href', '#demo');
-    expect(screen.getByRole('link', { name: 'Book a demo' })).toHaveAttribute('href', '#demo');
-    expect(screen.getByRole('link', { name: 'Talk to sales' })).toHaveAttribute('href', '#demo');
+    expect(screen.getByRole('link', { name: 'Start 30-day trial' })).toHaveAttribute('href', '/#demo');
+    expect(screen.getByRole('link', { name: 'Book a demo' })).toHaveAttribute('href', '/#demo');
+    expect(screen.getByRole('link', { name: 'Talk to sales' })).toHaveAttribute('href', '/#demo');
   });
 });

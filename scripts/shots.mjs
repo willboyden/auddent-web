@@ -19,6 +19,13 @@ for (const [name, viewport] of [
   if (name === 'desktop') {
     await page.goto(`${BASE}/resources/${ogConfig.articleSlug}`, { waitUntil: 'networkidle' });
     await page.screenshot({ path: `shots/desktop-article.png`, fullPage: true });
+    await page.goto(`${BASE}/privacy`, { waitUntil: 'networkidle' });
+    await page.screenshot({ path: `shots/desktop-privacy.png`, fullPage: true });
+    await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+    await page.locator('#demo').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `shots/desktop-demo.png` });
+    await page.goto(`${BASE}/404.html`, { waitUntil: 'networkidle' });
+    await page.screenshot({ path: `shots/desktop-404.png` });
   }
   await context.close();
 }

@@ -1,15 +1,15 @@
 {
-  "name": "brightguard-marketing-site",
+  "name": "auditdent-marketing-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Marketing site for BrightGuard, the dental compliance workbench",
+  "description": "Marketing site for AudDent, the dental compliance workbench",
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "dev": "vite --port 5199",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

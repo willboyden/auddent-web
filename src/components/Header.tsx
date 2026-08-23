@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
-import { NAV_LINKS, PRODUCT_NAME } from '../data/content';
+import { NAV_LINKS, PAGE_LINKS, PRODUCT_NAME } from '../data/content';
+import { trackEvent } from '../lib/analytics';
 import { Button, Container } from './ui';
 
 const HeaderBar = styled.header`
@@ -165,10 +166,10 @@ export default function Header() {
   const close = () => setOpen(false);
 
   return (
-    <HeaderBar>
+    <HeaderBar id="top">
       <Container>
         <Inner>
-          <Brand href="#top">
+          <Brand href="/#top">
             <LogoMark />
             {PRODUCT_NAME}
           </Brand>
@@ -179,10 +180,17 @@ export default function Header() {
                   <NavA href={link.href}>{link.label}</NavA>
                 </li>
               ))}
+              {PAGE_LINKS.map((link) => (
+                <li key={link.href}>
+                  <NavA href={link.href}>{link.label}</NavA>
+                </li>
+              ))}
             </NavList>
           </DesktopNav>
           <CtaSlot>
-            <Button href="#demo">Book a demo</Button>
+            <Button href="/#demo" onClick={() => trackEvent('cta_click', { source: 'header' })}>
+              Book a demo
+            </Button>
           </CtaSlot>
           <MenuButton
             type="button"
@@ -206,8 +214,21 @@ export default function Header() {
               </a>
             </li>
           ))}
+          {PAGE_LINKS.map((link) => (
+            <li key={link.href}>
+              <a href={link.href} onClick={close}>
+                {link.label}
+              </a>
+            </li>
+          ))}
           <li>
-            <a href="#demo" onClick={close}>
+            <a
+              href="/#demo"
+              onClick={() => {
+                close();
+                trackEvent('cta_click', { source: 'mobile_menu' });
+              }}
+            >
               Book a demo
             </a>
           </li>

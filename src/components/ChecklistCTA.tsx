@@ -2,7 +2,9 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import styled from '@emotion/styled';
 import { colors, radii, shadows } from '../theme';
-import { US_STATES } from '../data/content';
+import { CONTACT_EMAIL, US_STATES } from '../data/content';
+import { trackEvent } from '../lib/analytics';
+import { checklistMailto, cooldownRemainingMs, openMailto, recordSubmission } from '../lib/leads';
 import { validateChecklistForm } from '../lib/validation';
 import type { ChecklistFormErrors, ChecklistFormValues } from '../lib/validation';
 import { Button, Container, Section, Eyebrow, SectionLede, SectionTitle } from './ui';
@@ -179,6 +181,7 @@ export default function ChecklistCTA() {
   const [values, setValues] = useState<ChecklistFormValues>(INITIAL);
   const [errors, setErrors] = useState<ChecklistFormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
 
   function setField(key: keyof ChecklistFormValues, value: string) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -196,6 +199,15 @@ export default function ChecklistCTA() {
       }
       return;
     }
+    const remaining = cooldownRemainingMs('checklist');
+    if (remaining > 0) {
+      setRateLimited(true);
+      return;
+    }
+    trackEvent('checklist_request', { state: values.state });
+    recordSubmission('checklist');
+    openMailto(checklistMailto(values));
+    setRateLimited(false);
     setSubmitted(true);
   }
 
@@ -219,12 +231,13 @@ export default function ChecklistCTA() {
                     <path d="M7.5 12.5l3 3 6-6.5" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </SuccessIcon>
-                <SuccessTitle>Checklist for {values.state} is on its way</SuccessTitle>
+                <SuccessTitle>One more step to get the {values.state} checklist</SuccessTitle>
                 <SuccessBody>
-                  Look for it at <strong>{values.email.trim()}</strong> — it takes about two minutes to read. When
-                  you’re ready to see it live, book the walkthrough.
+                  We’ve opened a draft email with your request. Hit send and we’ll reply to{' '}
+                  <strong>{values.email.trim()}</strong> with the {values.state} checklist — it takes about two
+                  minutes to read. If your email app didn’t open, email {CONTACT_EMAIL} directly.
                 </SuccessBody>
-                <Button href="#demo" variant="primary">
+                <Button href="/#demo" variant="primary">
                   Book the 30-minute demo
                 </Button>
               </Success>
@@ -280,6 +293,11 @@ export default function ChecklistCTA() {
                   ) : null}
                 </Field>
 
+                {rateLimited ? (
+                  <ErrorMsg id="checklist-rate-limited" role="alert" aria-label="You just submitted this form. Please wait a minute before trying again.">
+                    You just submitted this form — please wait a minute before trying again.
+                  </ErrorMsg>
+                ) : null}
                 <SubmitButton type="submit">Send my checklist</SubmitButton>
                 <FinePrint>No spam, no account. We’ll also use this to tailor your demo if you book one.</FinePrint>
               </form>

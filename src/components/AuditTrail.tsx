@@ -210,7 +210,7 @@ export default function AuditTrail() {
             <Eyebrow>The differentiator</Eyebrow>
             <Title>The audit trail your inspector will trust</Title>
             <Lede>
-              Compliance software is only as good as the record it produces. BrightGuard keeps that record
+              Compliance software is only as good as the record it produces. AudDent keeps that record
               provable.
             </Lede>
             <Points>
