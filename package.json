@@ -15,8 +15,9 @@
     "lint": "eslint .",
     "test:unit": "vitest run",
     "test:watch": "vitest",
+    "test:links": "node scripts/linkrot.mjs",
     "test:e2e": "playwright test",
-    "gate": "npm run typecheck && npm run lint && npm run test:unit && npm run build && npm run test:e2e"
+    "gate": "npm run typecheck && npm run lint && npm run test:unit && npm run test:links && npm run build && npm run test:e2e"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

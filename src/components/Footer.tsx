@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { CONTACT_EMAIL, NAV_LINKS, PAGE_LINKS, PRODUCT_NAME, PRODUCT_TAGLINE } from '../data/content';
+import { SHIPPED_STATE_NAMES, SHIPPED_STATE_SLUGS } from '../data/checklists';
 import { Container } from './ui';
 
 const Wrap = styled.footer`
@@ -10,7 +11,7 @@ const Wrap = styled.footer`
 
 const Top = styled.div`
   display: grid;
-  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
   gap: 40px;
   padding-bottom: 32px;
   border-bottom: 1px solid rgba(185, 203, 224, 0.18);
@@ -35,7 +36,9 @@ const BrandLede = styled.p`
   max-width: 340px;
 `;
 
-const ColTitle = styled.h4`
+// A label, not a heading — a semantic heading here breaks the heading
+// outline on pages whose content ends at h2 (axe heading-order).
+const ColTitle = styled.p`
   margin: 0 0 14px;
   font-size: 13px;
   font-weight: 700;
@@ -112,6 +115,16 @@ export default function Footer() {
               ))}
             </LinkList>
           </nav>
+          <div>
+            <ColTitle>State checklists</ColTitle>
+            <LinkList>
+              {SHIPPED_STATE_NAMES.map((name, index) => (
+                <li key={name}>
+                  <LinkA href={`/checklist/${SHIPPED_STATE_SLUGS[index]}`}>{name}</LinkA>
+                </li>
+              ))}
+            </LinkList>
+          </div>
           <div>
             <ColTitle>Get started</ColTitle>
             <LinkList>

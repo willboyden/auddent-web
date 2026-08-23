@@ -27,6 +27,10 @@ export default tseslint.config(
         console: 'readonly',
         process: 'readonly',
         URL: 'readonly',
+        // Node >= 18 web globals (scripts run on Node 22)
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+        structuredClone: 'readonly',
       },
     },
   },

@@ -286,6 +286,65 @@ test.describe('marketing site', () => {
     expect(headers['content-security-policy']).toContain('https://plausible.io');
   });
 
+  const CHECKLIST_STATES = [
+    { state: 'California', slug: 'california' },
+    { state: 'Texas', slug: 'texas' },
+    { state: 'Florida', slug: 'florida' },
+    { state: 'Massachusetts', slug: 'massachusetts' },
+  ];
+
+  test('state checklist pages ship crawler-facing meta', async ({ request }) => {
+    for (const { state, slug } of CHECKLIST_STATES) {
+      const response = await request.get(`/checklist/${slug}`);
+      expect(response.status()).toBe(200);
+      const html = await response.text();
+      expect(html).toContain(`<title>Inspection checklist for ${state} | AudDent</title>`);
+      expect(html).toContain(
+        `<link rel="canonical" href="https://www.auditdent.example/checklist/${slug}" />`,
+      );
+      expect(html).toContain('application/ld+json');
+      expect(html).toContain('BreadcrumbList');
+      // SSR content is present in #root before the client bundle takes over
+      expect(html).toContain(`Inspection checklist for ${state}`);
+    }
+  });
+
+  test('shipped state renders the checklist (both URL forms)', async ({ page }) => {
+    await page.goto('/checklist/california');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Inspection checklist for California' }),
+    ).toBeVisible();
+    // Exact match: the print-only bar carries the same "Last reviewed" text.
+    await expect(page.getByText('Last reviewed August 23, 2026', { exact: true })).toBeVisible();
+    await expect(page.getByText('About California.')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'California Department of Public Health' })).toBeVisible();
+    // Item links to primary sources are rendered
+    expect(await page.getByRole('link', { name: 'osha.gov' }).count()).toBeGreaterThan(0);
+    // The disclaimer is on the page
+    await expect(page.getByRole('heading', { name: 'What this is (and isn’t)' })).toBeVisible();
+
+    // Trailing-slash form (nginx canonicalizes /checklist/x -> /checklist/x/)
+    // must render the same page, not the 404.
+    await page.goto('/checklist/california/');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Inspection checklist for California' }),
+    ).toBeVisible();
+  });
+
+  test('unknown checklist slug 404s', async ({ page }) => {
+    await page.goto('/checklist/new-york');
+    await expect(page.getByRole('heading', { name: 'This page doesn’t exist.' })).toBeVisible();
+  });
+
+  test('has no axe violations on a checklist page (desktop + mobile)', async ({ page }) => {
+    for (const size of [{ width: 1280, height: 900 }, { width: 375, height: 720 }]) {
+      await page.setViewportSize(size);
+      await page.goto('/checklist/florida');
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+    }
+  });
+
   test('sticky demo bar appears after scrolling past the hero', async ({ page }) => {
     await page.goto('/');
     const bar = page.getByRole('region', { name: 'Quick demo booking' });

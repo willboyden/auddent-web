@@ -5,7 +5,9 @@ import { theme } from './theme';
 import PrivacyPage from './pages/Privacy';
 import ResourcesPage from './pages/Resources';
 import ResourceArticlePage from './pages/ResourceArticle';
+import StateChecklistPage from './pages/StateChecklist';
 import type { ResourceArticle as ArticleData } from './data/resources';
+import type { StateChecklist as ChecklistData } from './data/checklists';
 
 /**
  * Node-side renderers for the post-build prerender pass (scripts/prerender.mjs).
@@ -28,4 +30,8 @@ export function renderPrivacyPage(): string {
 
 export function renderArticlePage(article: ArticleData): string {
   return renderPage(<ResourceArticlePage article={article} />);
+}
+
+export function renderChecklistPage(checklist: ChecklistData): string {
+  return renderPage(<StateChecklistPage checklist={checklist} />);
 }

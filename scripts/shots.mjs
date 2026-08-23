@@ -26,6 +26,13 @@ for (const [name, viewport] of [
     await page.screenshot({ path: `shots/desktop-demo.png` });
     await page.goto(`${BASE}/404.html`, { waitUntil: 'networkidle' });
     await page.screenshot({ path: `shots/desktop-404.png` });
+    for (const slug of ['california', 'texas', 'florida', 'massachusetts']) {
+      await page.goto(`${BASE}/checklist/${slug}`, { waitUntil: 'networkidle' });
+      await page.screenshot({ path: `shots/desktop-checklist-${slug}.png`, fullPage: true });
+      await page.emulateMedia({ media: 'print' });
+      await page.screenshot({ path: `shots/desktop-checklist-${slug}-print.png`, fullPage: true });
+      await page.emulateMedia({ media: 'screen' });
+    }
   }
   await context.close();
 }

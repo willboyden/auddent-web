@@ -1,6 +1,6 @@
 // Post-build prerender pass: writes real HTML for /resources,
-// /resources/<slug>, and /privacy (per-page <title>, canonical, OG tags,
-// JSON-LD) plus the /rss.xml feed into dist/. Each page is written as <dir>/index.html AND a
+// /resources/<slug>, /checklist/<state-slug>, and /privacy (per-page <title>,
+// canonical, OG tags, JSON-LD) plus the /rss.xml feed into dist/. Each page is written as <dir>/index.html AND a
 // <dir>.html sibling, so both /dir and /dir/ resolve to the real page on any
 // static host (with or without an SPA rewrite rule).
 //
@@ -113,14 +113,16 @@ const vite = await createServer({
 });
 
 try {
-  const [entry, resources, content] = await Promise.all([
+  const [entry, resources, content, checklists] = await Promise.all([
     vite.ssrLoadModule('/src/prerender-entry.tsx'),
     vite.ssrLoadModule('/src/data/resources.ts'),
     vite.ssrLoadModule('/src/data/content.ts'),
+    vite.ssrLoadModule('/src/data/checklists/index.ts'),
   ]);
-  const { renderResourcesPage, renderArticlePage, renderPrivacyPage } = entry;
+  const { renderResourcesPage, renderArticlePage, renderPrivacyPage, renderChecklistPage } = entry;
   const { RESOURCE_ARTICLES } = resources;
   const { PRODUCT_NAME } = content;
+  const { CHECKLIST_STATES, CHECKLIST_SECTIONS } = checklists;
 
   const assetsDir = path.join(distDir, 'assets');
   const assets = readdirSync(assetsDir);
@@ -240,6 +242,54 @@ try {
           },
         ]),
         body: renderArticlePage(article),
+        css,
+        js: entryJs,
+      }),
+    );
+  }
+
+  for (const checklist of CHECKLIST_STATES) {
+    const canonical = `${BASE_URL}/checklist/${checklist.slug}`;
+    const title = `Inspection checklist for ${checklist.state} | ${PRODUCT_NAME}`;
+    await writePage(
+      path.join('checklist', checklist.slug),
+      pageHtml({
+        title,
+        description: `What inspectors commonly check in ${checklist.state} before and during a dental inspection — water quality thresholds, sharps rules, X-ray registration, and more. Last reviewed ${checklist.lastReviewedIso}.`,
+        canonical,
+        ogType: 'article',
+        jsonLd: jsonLdBlock([
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: title,
+            url: canonical,
+            dateModified: checklist.lastReviewedIso,
+            about: {
+              '@type': 'AdministrativeArea',
+              name: checklist.state,
+            },
+            isPartOf: { '@type': 'WebSite', name: PRODUCT_NAME, url: `${BASE_URL}/` },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              homeCrumb,
+              { '@type': 'ListItem', position: 2, name: `Checklist — ${checklist.state}`, item: canonical },
+            ],
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            itemListElement: CHECKLIST_SECTIONS.map((section, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: section.title,
+            })),
+          },
+        ]),
+        body: renderChecklistPage(checklist),
         css,
         js: entryJs,
       }),

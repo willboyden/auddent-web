@@ -61,6 +61,19 @@ describe('ChecklistCTA', () => {
     expect(openMailto).toHaveBeenCalledWith(checklistMailto({ state: 'Colorado', email: 'dr.lee@brightsmile.example' }));
   });
 
+  it('offers the live checklist link when the shipped state is requested', async () => {
+    const user = userEvent.setup();
+    render(<ChecklistCTA />);
+    await user.selectOptions(screen.getByLabelText('Your state'), 'California');
+    await user.type(screen.getByLabelText('Your work email'), 'dr.lee@brightsmile.example');
+    await user.click(screen.getByRole('button', { name: 'Send my checklist' }));
+
+    expect(screen.getByRole('link', { name: 'Or read the California checklist now →' })).toHaveAttribute(
+      'href',
+      '/checklist/california',
+    );
+  });
+
   it('blocks a repeat submission while the cooldown is active', async () => {
     const user = userEvent.setup();
     render(<ChecklistCTA />);

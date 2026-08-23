@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import styled from '@emotion/styled';
 import { colors, radii, shadows } from '../theme';
 import { CONTACT_EMAIL, US_STATES } from '../data/content';
+import { SHIPPED_STATE_NAMES, SHIPPED_STATE_SLUGS, getChecklistByState } from '../data/checklists';
 import { trackEvent } from '../lib/analytics';
 import { checklistMailto, cooldownRemainingMs, openMailto, recordSubmission } from '../lib/leads';
 import { validateChecklistForm } from '../lib/validation';
@@ -144,6 +145,47 @@ const FinePrint = styled.p`
   text-align: center;
 `;
 
+const LiveLinks = styled.p`
+  margin: 18px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: ${colors.muted};
+  text-align: center;
+
+  a {
+    color: ${colors.primary};
+    text-decoration: none;
+    font-weight: 700;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(10, 99, 201, 0.45);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+  }
+`;
+
+const SuccessLink = styled.a`
+  font-size: 14.5px;
+  font-weight: 700;
+  color: ${colors.primary};
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(10, 99, 201, 0.45);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+`;
+
 const Success = styled.div`
   display: flex;
   flex-direction: column;
@@ -188,6 +230,8 @@ export default function ChecklistCTA() {
     setErrors((e) => ({ ...e, [key]: undefined }));
   }
 
+  const shipped = getChecklistByState(values.state);
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const next = validateChecklistForm(values);
@@ -219,7 +263,9 @@ export default function ChecklistCTA() {
           <SectionTitle>Get your state’s inspection checklist</SectionTitle>
           <SectionLede style={{ margin: '0 auto' }}>
             State inspectors don’t all check the same things. Tell us where you practice and we’ll send the list your
-            state is most likely to walk through — free, and no account needed.
+            state is most likely to walk through — free, and no account needed. Checklists for{' '}
+            {SHIPPED_STATE_NAMES.slice(0, -1).join(', ')} and {SHIPPED_STATE_NAMES[SHIPPED_STATE_NAMES.length - 1]}
+            are live right now.
           </SectionLede>
 
           <FormCard>
@@ -237,6 +283,11 @@ export default function ChecklistCTA() {
                   <strong>{values.email.trim()}</strong> with the {values.state} checklist — it takes about two
                   minutes to read. If your email app didn’t open, email {CONTACT_EMAIL} directly.
                 </SuccessBody>
+                {shipped ? (
+                  <SuccessLink href={`/checklist/${shipped.slug}`}>
+                    Or read the {values.state} checklist now →
+                  </SuccessLink>
+                ) : null}
                 <Button href="/#demo" variant="primary">
                   Book the 30-minute demo
                 </Button>
@@ -303,6 +354,15 @@ export default function ChecklistCTA() {
               </form>
             )}
           </FormCard>
+          <LiveLinks>
+            Live now:{' '}
+            {SHIPPED_STATE_NAMES.map((name, index) => (
+              <span key={name}>
+                <a href={`/checklist/${SHIPPED_STATE_SLUGS[index]}`}>{name}</a>
+                {index < SHIPPED_STATE_NAMES.length - 1 ? ' · ' : ''}
+              </span>
+            ))}
+          </LiveLinks>
         </Wrap>
       </Container>
     </Section>

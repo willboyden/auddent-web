@@ -6,7 +6,9 @@ import NotFound from './components/NotFound';
 import PrivacyPage from './pages/Privacy';
 import Resources from './pages/Resources';
 import ResourceArticle from './pages/ResourceArticle';
+import StateChecklist from './pages/StateChecklist';
 import { getResourceBySlug } from './data/resources';
+import { getChecklistBySlug } from './data/checklists';
 import { theme } from './theme';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
@@ -26,6 +28,8 @@ if (!rootElement) {
 const path = window.location.pathname.replace(/\/+$/, '') || '/';
 const resourceMatch = path.match(/^\/resources\/([a-z0-9-]+)$/);
 const article = resourceMatch ? getResourceBySlug(resourceMatch[1]) : undefined;
+const checklistMatch = path.match(/^\/checklist\/([a-z]+)$/);
+const checklist = checklistMatch ? getChecklistBySlug(checklistMatch[1]) : undefined;
 
 let page: ReactElement;
 if (path === '/') {
@@ -36,6 +40,8 @@ if (path === '/') {
   page = <PrivacyPage />;
 } else if (article) {
   page = <ResourceArticle article={article} />;
+} else if (checklist) {
+  page = <StateChecklist checklist={checklist} />;
 } else {
   page = <NotFound />;
 }
