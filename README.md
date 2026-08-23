@@ -53,6 +53,27 @@ nginx/          container nginx config + security headers
 shots/          QA screenshots (desktop/mobile, full + print)
 ```
 
+## Git flow
+
+- **`main`** — the deploy branch. Promotions only: a no-ff merge from
+  `develop` plus a `vX.Y.Z` tag. Never written directly.
+- **`develop`** — the integration branch. All work lands here first.
+- **`feature/<name>` / `bugfix/<name>`** — short-lived branches cut from
+  `develop`, delivered as a PR to `develop` (gate green), deleted after
+  merge.
+
+The full quality gate (`npm run gate`) must pass before a branch merges; CI
+runs it on every PR and push (the `gate` check is what branch protection
+requires). `main` and `develop` are protected on GitHub: required PR + green
+check, no direct pushes, no force pushes.
+
+Local hooks (commit-msg, pre-commit lint, pre-push gate) live in
+`scripts/git-hooks/`; install them on a fresh clone with:
+
+```sh
+git config core.hooksPath scripts/git-hooks
+```
+
 ## Current state
 
 - All site metadata (canonical URLs, sitemap, Open Graph, RSS) uses the
