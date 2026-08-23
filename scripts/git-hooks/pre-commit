@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Fast local guard: lint only the staged code files with this repo's eslint.
+# The full gate runs on push (pre-push) and in CI — this just fails fast on
+# obvious breakage.
+set -euo pipefail
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+# shellcheck disable=SC2086
+files="$(printf '%s\n' "$staged" | grep -E '\.(js|mjs|cjs|ts|tsx)$' || true)"
+if [ -z "$files" ]; then
+  exit 0
+fi
+echo "pre-commit: linting staged code files"
+# shellcheck disable=SC2086
+npx eslint --no-warn-ignored $(printf '%s\n' "$files")
+
+exit 0
