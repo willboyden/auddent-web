@@ -19,6 +19,9 @@ import { createServer } from 'vite';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'linkrot-cache.json');
 const TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Failures are cached far shorter than successes: a transient 502 must not
+// red the gate for days. Re-check a failed URL after an hour.
+const FAILURE_TTL_MS = 60 * 60 * 1000;
 const TIMEOUT_MS = 15000;
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
@@ -142,7 +145,8 @@ try {
       continue;
     }
     const entry = cache[url];
-    if (entry && typeof entry.checkedAtMs === 'number' && now - entry.checkedAtMs < TTL_MS) {
+    const entryTtl = entry?.ok ? TTL_MS : FAILURE_TTL_MS;
+    if (entry && typeof entry.checkedAtMs === 'number' && now - entry.checkedAtMs < entryTtl) {
       cached += 1;
       if (!entry.ok) failures.push({ url, status: entry.status, note: 'cached failure' });
       continue;
