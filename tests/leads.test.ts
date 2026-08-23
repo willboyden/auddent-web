@@ -4,6 +4,7 @@ import {
   cooldownRemainingMs,
   demoMailto,
   LEAD_COOLDOWN_MS,
+  openMailto,
   recordSubmission,
 } from '../src/lib/leads';
 import { CONTACT_EMAIL } from '../src/data/content';
@@ -98,5 +99,13 @@ describe('lead submission cooldown (abuse control — FOLLOWUPS #4)', () => {
     } as Storage);
     expect(() => recordSubmission('demo')).not.toThrow();
     expect(cooldownRemainingMs('demo')).toBe(0);
+  });
+});
+
+describe('openMailto safety guard', () => {
+  it('ignores non-mailto URLs', () => {
+    const before = window.location.href;
+    openMailto('https://example.com');
+    expect(window.location.href).toBe(before);
   });
 });
