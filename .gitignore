@@ -16,6 +16,9 @@ scripts/linkrot-cache.json
 # Local security-audit notes; contain findings that must not be public
 security-followups.md
 
+# macOS Finder metadata
+*.DS_Store
+
 # AI tooling (opencode / claude) — present locally for agent workflows,
 # never committed to this public repo
 AGENTS.md
