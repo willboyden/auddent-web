@@ -3,9 +3,9 @@
 // state's boardUrl. A dead citation is a gate failure: the checklists are a
 // compliance deliverable and their sources must be live.
 //
-// Bot-walled domains (cdc.gov, mass.gov) reject automated/datacenter clients
-// with 403 even for live pages; they are skipped with a logged warning and
-// are spot-checked manually under the plan's two-reviewer rule.
+// Bot-walled domains (cdc.gov, mass.gov, cdph.ca.gov) reject automated/datacenter
+// clients or fail SSL verification in CI; they are skipped with a logged warning
+// and are spot-checked manually under the plan's two-reviewer rule.
 //
 // Results are cached for 7 days (scripts/linkrot-cache.json, gitignored) so
 // the gate does not hammer state agencies on every run.
@@ -26,7 +26,7 @@ const TIMEOUT_MS = 15000;
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 // Domains that 403 automated clients even for live pages (see header).
-const BOT_WALL_HOSTS = new Set(['cdc.gov', 'mass.gov']);
+const BOT_WALL_HOSTS = new Set(['cdc.gov', 'mass.gov', 'cdph.ca.gov']);
 
 function isBotWalled(url) {
   const host = new URL(url).hostname.toLowerCase();
