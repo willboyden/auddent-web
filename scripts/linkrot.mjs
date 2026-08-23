@@ -46,7 +46,32 @@ function curlStatus(url) {
   });
 }
 
+// Transient origin-side failures (5xx, network/TLS) are retried with
+// backoff — cited sources (e.g. texasdental.org) drop for minutes at a
+// time, and a brief 502 must not red the gate. 4xx is a real breakage
+// and fails immediately.
+const MAX_ATTEMPTS = 3;
+const RETRY_BACKOFF_MS = [10_000, 30_000];
+
+function isTransient(result) {
+  return result.status === 0 || (result.status >= 500 && result.status < 600);
+}
+
 async function checkUrl(url) {
+  let result;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    result = await checkUrlOnce(url);
+    if (result.ok || !isTransient(result)) {
+      return result;
+    }
+    if (attempt < MAX_ATTEMPTS) {
+      await new Promise((resolve) => setTimeout(resolve, RETRY_BACKOFF_MS[attempt - 1]));
+    }
+  }
+  return { ...result, note: `${result.note ?? ''}; gave up after ${MAX_ATTEMPTS} attempts` };
+}
+
+async function checkUrlOnce(url) {
   // Returns { ok, status, note } — ok=false also for network failures.
   const headers = { 'user-agent': USER_AGENT };
   let fetchNote = '';

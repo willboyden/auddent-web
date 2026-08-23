@@ -31,6 +31,7 @@ export default tseslint.config(
         fetch: 'readonly',
         AbortSignal: 'readonly',
         structuredClone: 'readonly',
+        setTimeout: 'readonly',
       },
     },
   },
