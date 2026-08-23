@@ -50,7 +50,7 @@ function curlStatus(url) {
 }
 
 // Transient origin-side failures (5xx, network/TLS) are retried with
-// backoff — cited sources (e.g. texasdental.org) drop for minutes at a
+// backoff — state agency sites can drop for minutes at a
 // time, and a brief 502 must not red the gate. 4xx is a real breakage
 // and fails immediately.
 const MAX_ATTEMPTS = 3;
