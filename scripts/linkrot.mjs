@@ -3,9 +3,9 @@
 // state's boardUrl. A dead citation is a gate failure: the checklists are a
 // compliance deliverable and their sources must be live.
 //
-// Bot-walled domains (cdc.gov, mass.gov) reject automated/datacenter clients
-// with 403 even for live pages; they are skipped with a logged warning and
-// are spot-checked manually under the plan's two-reviewer rule.
+// Bot-walled domains (cdc.gov, mass.gov, cdph.ca.gov) reject automated/datacenter
+// clients or fail SSL verification in CI; they are skipped with a logged warning
+// and are spot-checked manually under the plan's two-reviewer rule.
 //
 // Results are cached for 7 days (scripts/linkrot-cache.json, gitignored) so
 // the gate does not hammer state agencies on every run.
@@ -19,11 +19,14 @@ import { createServer } from 'vite';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'linkrot-cache.json');
 const TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Failures are cached far shorter than successes: a transient 502 must not
+// red the gate for days. Re-check a failed URL after an hour.
+const FAILURE_TTL_MS = 60 * 60 * 1000;
 const TIMEOUT_MS = 15000;
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 // Domains that 403 automated clients even for live pages (see header).
-const BOT_WALL_HOSTS = new Set(['cdc.gov', 'mass.gov']);
+const BOT_WALL_HOSTS = new Set(['cdc.gov', 'mass.gov', 'cdph.ca.gov']);
 
 function isBotWalled(url) {
   const host = new URL(url).hostname.toLowerCase();
@@ -46,7 +49,32 @@ function curlStatus(url) {
   });
 }
 
+// Transient origin-side failures (5xx, network/TLS) are retried with
+// backoff — state agency sites can drop for minutes at a
+// time, and a brief 502 must not red the gate. 4xx is a real breakage
+// and fails immediately.
+const MAX_ATTEMPTS = 3;
+const RETRY_BACKOFF_MS = [10_000, 30_000];
+
+function isTransient(result) {
+  return result.status === 0 || (result.status >= 500 && result.status < 600);
+}
+
 async function checkUrl(url) {
+  let result;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    result = await checkUrlOnce(url);
+    if (result.ok || !isTransient(result)) {
+      return result;
+    }
+    if (attempt < MAX_ATTEMPTS) {
+      await new Promise((resolve) => setTimeout(resolve, RETRY_BACKOFF_MS[attempt - 1]));
+    }
+  }
+  return { ...result, note: `${result.note ?? ''}; gave up after ${MAX_ATTEMPTS} attempts` };
+}
+
+async function checkUrlOnce(url) {
   // Returns { ok, status, note } — ok=false also for network failures.
   const headers = { 'user-agent': USER_AGENT };
   let fetchNote = '';
@@ -117,7 +145,8 @@ try {
       continue;
     }
     const entry = cache[url];
-    if (entry && typeof entry.checkedAtMs === 'number' && now - entry.checkedAtMs < TTL_MS) {
+    const entryTtl = entry?.ok ? TTL_MS : FAILURE_TTL_MS;
+    if (entry && typeof entry.checkedAtMs === 'number' && now - entry.checkedAtMs < entryTtl) {
       cached += 1;
       if (!entry.ok) failures.push({ url, status: entry.status, note: 'cached failure' });
       continue;
