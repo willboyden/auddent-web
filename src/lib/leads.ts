@@ -29,7 +29,13 @@ export function checklistMailto(values: ChecklistFormValues): string {
 }
 
 export function openMailto(url: string) {
-  window.location.href = url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'mailto:') return;
+    window.location.href = parsed.toString();
+  } catch {
+    // ignore malformed URLs
+  }
 }
 
 // Abuse control (FOLLOWUPS.md #4): a per-form submission cooldown. The
